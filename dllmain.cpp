@@ -4,13 +4,13 @@
 #pragma pack(push, 4)
 struct tTVPXP3ExtractionFilterInfo
 {
-    const unsigned __int32 size_of_self; // structure size of tTVPXP3ExtractionFilterInfo itself
-    const unsigned __int64 offset; // offset of the buffer data in uncompressed stream position
-    void *buffer; // target data buffer
-    const unsigned __int32 buffer_size; // buffer size in bytes pointed by "Buffer"
-    const unsigned __int32 file_hash; // hash value of the file (since inteface v2)
+    const unsigned __int32 size_of_self;
+    const unsigned __int64 offset;
+    void *buffer;
+    const unsigned __int32 buffer_size;
+    const unsigned __int32 file_hash;
 
-    tTVPXP3ExtractionFilterInfo(unsigned long long offset, void* buffer, unsigned int buffersize, unsigned int filehash) :
+    tTVPXP3ExtractionFilterInfo(unsigned __int64 offset, void* buffer, unsigned int buffersize, unsigned int filehash) :
         offset(offset), buffer(buffer), buffer_size(buffersize),
         file_hash(filehash),
         size_of_self(sizeof(tTVPXP3ExtractionFilterInfo)) {
@@ -19,14 +19,15 @@ struct tTVPXP3ExtractionFilterInfo
 };
 #pragma pack(pop)
 
-typedef void (_stdcall *FilterFunc)(tTVPXP3ExtractionFilterInfo* info);
+typedef void (_stdcall *FilterFunc)(tTVPXP3ExtractionFilterInfo *info);
 
 DWORD process_handle;
 FilterFunc original_filter;
 
 void _stdcall HookedFilter(tTVPXP3ExtractionFilterInfo *info) {
-    printf("self: %ld\noffset: %ld\nbuffer: %x\nbuffer_size: %d\nfile_hash: %x\n\n", info -> size_of_self, info -> offset, info -> buffer, info -> buffer_size, info -> file_hash);
-    original_filter(info);
+    printf("self: %d\noffset: %ld\nbuffer: %x\nbuffer_size: %d\nfile_hash: %d\n\n", info -> size_of_self, info -> offset, info -> buffer, info -> buffer_size, info -> file_hash);
+
+    if (original_filter) original_filter(info);
 }
 
 bool BCompare(const BYTE *data, const BYTE *pattern, const char *pattern_mask) {
